@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,8 +46,15 @@ public class PortfolioManagerApplication {
   //  2. You can use "./gradlew build" to check if your code builds successfully.
 
   public static List<String> mainReadFile(String[] args) throws IOException, URISyntaxException {
+    File file = resolveFileFromResources(args[0]);
+    ObjectMapper om = getObjectMapper();
+    PortfolioTrade[] trade = om.readValue(file, PortfolioTrade[].class);
+    List<String> data = new ArrayList<>();
+    for (PortfolioTrade alpha : trade) {
+      data.add(alpha.getSymbol());
+    }
+    return data;
 
-     return Collections.emptyList();
   }
 
 
@@ -116,17 +124,17 @@ public class PortfolioManagerApplication {
 
   public static List<String> debugOutputs() {
 
-     String valueOfArgument0 = "trades.json";
-     String resultOfResolveFilePathArgs0 = "";
-     String toStringOfObjectMapper = "";
-     String functionNameFromTestFileInStackTrace = "";
-     String lineNumberFromTestFileInStackTrace = "";
-
+    String valueOfArgument0 = "trades.json";
+    String resultOfResolveFilePathArgs0 = "/home/crio-user/workspace/jains5833-ME_QMONEY_V2/qmoney/bin/main/trades.json";
+    String toStringOfObjectMapper = "com.fasterxml.jackson.databind.ObjectMapper@67c27493";
+    String functionNameFromTestFileInStackTrace = "PortfolioManagerApplicationTest.mainReadFile()";
+    String lineNumberFromTestFileInStackTrace = "29:1";
 
     return Arrays.asList(new String[]{valueOfArgument0, resultOfResolveFilePathArgs0,
-        toStringOfObjectMapper, functionNameFromTestFileInStackTrace,
-        lineNumberFromTestFileInStackTrace});
+      toStringOfObjectMapper, functionNameFromTestFileInStackTrace,
+      lineNumberFromTestFileInStackTrace});
   }
+
 
 
   // Note:
