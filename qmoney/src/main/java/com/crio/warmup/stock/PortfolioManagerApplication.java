@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,12 +155,26 @@ public class PortfolioManagerApplication {
 
     String filename = args[0];
     String dateString = args[1];
-    LocalDate endDate = LocalDate.parse(dateString);
+    LocalDate endDate;
+
+    try {
+        endDate = LocalDate.parse(dateString);
+    } catch (DateTimeParseException e) {
+        throw new RuntimeException("Invalid date format. Expected format: yyyy-MM-dd");
+    }
+
+    // Assuming resolveFileFromResources and getObjectMapper methods are correctly implemented
 
     File file = resolveFileFromResources(filename);
     ObjectMapper om = getObjectMapper();
-    List<PortfolioTrade> trades = om.readValue(file, new TypeReference<List<PortfolioTrade>>() {});
-    
+    List<PortfolioTrade> trades;
+
+    try {
+        trades = om.readValue(file, new TypeReference<List<PortfolioTrade>>() {});
+    } catch (IOException e) {
+        throw new RuntimeException("Error reading file: " + filename, e);
+    }
+
     // Filter trades based on the provided end date
     List<String> symbols = trades.stream()
             .filter(trade -> trade.getPurchaseDate().isBefore(endDate) || trade.getPurchaseDate().isEqual(endDate))
@@ -168,6 +183,7 @@ public class PortfolioManagerApplication {
 
     return symbols;
 }
+
 
 
   // TODO:
