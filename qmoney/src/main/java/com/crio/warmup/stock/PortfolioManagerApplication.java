@@ -4,6 +4,7 @@ package com.crio.warmup.stock;
 
 import com.crio.warmup.stock.dto.*;
 import com.crio.warmup.stock.log.UncaughtExceptionHandler;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
@@ -66,6 +67,13 @@ public class PortfolioManagerApplication {
 
 
 
+
+
+
+
+  // TODO: CRIO_TASK_MODULE_REST_API
+  //  Find out the closing price of each stock on the end_date and return the list
+  //  of all symbols in ascending order by its close value on end date.
 
   // Note:
   // 1. You may have to register on Tiingo to get the api_token.
@@ -139,6 +147,46 @@ public class PortfolioManagerApplication {
 
   // Note:
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
+  public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
+     return Collections.emptyList();
+  }
+
+  // TODO:
+  //  After refactor, make sure that the tests pass by using these two commands
+  //  ./gradlew test --tests PortfolioManagerApplicationTest.readTradesFromJson
+  //  ./gradlew test --tests PortfolioManagerApplicationTest.mainReadFile
+  public static List<PortfolioTrade> readTradesFromJson(String filename) throws IOException, URISyntaxException {
+    File newFile = resolveFileFromResources(filename);
+    ObjectMapper newOm = getObjectMapper();
+    List<PortfolioTrade> allData = newOm.readValue(newFile, new TypeReference<List<PortfolioTrade>>() {
+    });
+    // System.out.println(allData);
+    return allData;
+  }
+
+
+
+  // TODO:
+  //  Build the Url using given parameters and use this function in your code to cann the API.
+  public static String prepareUrl(PortfolioTrade trade, LocalDate endDate, String token) {
+    String endpoint = "https://api.tiingo.com/tiingo/daily/";
+    String path = "/prices?";
+    StringBuilder str = new StringBuilder(endpoint);
+    str.append(trade.getSymbol());
+    str.append(path);
+    str.append("startDate=" + trade.getPurchaseDate().toString() + "&");
+    str.append("endDate=" + endDate.toString() + "&");
+    str.append("token=" + token);
+    return str.toString();
+  }
+
+
+
+
+
+
+
+
 
 
 
@@ -148,6 +196,8 @@ public class PortfolioManagerApplication {
 
     printJsonObject(mainReadFile(args));
 
+
+    printJsonObject(mainReadQuotes(args));
 
 
   }
