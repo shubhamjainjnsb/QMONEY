@@ -148,8 +148,27 @@ public class PortfolioManagerApplication {
   // Note:
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
   public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
-     return Collections.emptyList();
-  }
+    if (args.length < 2) {
+        throw new IllegalArgumentException("Insufficient arguments. Expected format: [filename] [date]");
+    }
+
+    String filename = args[0];
+    String dateString = args[1];
+    LocalDate endDate = LocalDate.parse(dateString);
+
+    File file = resolveFileFromResources(filename);
+    ObjectMapper om = getObjectMapper();
+    List<PortfolioTrade> trades = om.readValue(file, new TypeReference<List<PortfolioTrade>>() {});
+    
+    // Filter trades based on the provided end date
+    List<String> symbols = trades.stream()
+            .filter(trade -> trade.getPurchaseDate().isBefore(endDate) || trade.getPurchaseDate().isEqual(endDate))
+            .map(PortfolioTrade::getSymbol)
+            .collect(Collectors.toList());
+
+    return symbols;
+}
+
 
   // TODO:
   //  After refactor, make sure that the tests pass by using these two commands

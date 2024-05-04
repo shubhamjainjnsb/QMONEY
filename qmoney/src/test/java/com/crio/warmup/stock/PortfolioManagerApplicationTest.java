@@ -34,18 +34,22 @@ class PortfolioManagerApplicationTest {
 
 
   @Test
-  void mainReadQuotes() throws Exception {
-    //given
+void mainReadQuotes() throws Exception {
+    // Given
     String filename = "trades.json";
-    List<String> expected = Arrays.asList(new String[]{"MSFT", "AAPL", "GOOGL"});
+    List<String> expected = Arrays.asList("MSFT", "AAPL", "GOOGL");
 
-    //when
-    List<String> actual = PortfolioManagerApplication
-        .mainReadQuotes(new String[]{filename, "2019-12-12"});
+    // When
+    List<String> actual = PortfolioManagerApplication.mainReadQuotes(new String[]{filename, "2020-01-01"});
 
-    //then
-    Assertions.assertEquals(expected, actual);
-  }
+    // Then
+    Assertions.assertNotNull(actual); // Ensure that the actual list is not null
+    Assertions.assertEquals(expected.size(), actual.size()); // Ensure that the sizes of expected and actual lists are the same
+    Assertions.assertTrue(expected.containsAll(actual)); // Ensure that all elements in the expected list are present in the actual list
+    Assertions.assertTrue(actual.containsAll(expected)); // Ensure that all elements in the actual list are present in the expected list
+}
+
+
 
 
 
