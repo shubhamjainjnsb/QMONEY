@@ -160,8 +160,9 @@ public class PortfolioManagerApplication {
     try {
         endDate = LocalDate.parse(dateString);
     } catch (DateTimeParseException e) {
-        throw new RuntimeException("Invalid date format. Expected format: yyyy-MM-dd");
-    }
+        // throw new RuntimeException("Invalid date format. Expected format: yyyy-MM-dd");
+        throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd");
+      }
 
     // Assuming resolveFileFromResources and getObjectMapper methods are correctly implemented
 
@@ -184,7 +185,37 @@ public class PortfolioManagerApplication {
     return symbols;
 }
 
+/*
+ public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException{
+    
+    List <PortfolioTrade> portfolioTrades = readTradesFromJson(args[0]);
+    LocalDate endDate = LocalDate.parse(args[1]);
 
+    String token = "289464e8faf5cf34aba42001442fb59b3c854b6c";
+
+    RestTemplate restTemplate = new RestTemplate();
+
+    List <TotalReturnsDto> allTrades = new ArrayList<>();
+
+    for(PortfolioTrade trade : portfolioTrades) {
+      // String url = String.format("https://api.tiingo.com/tiingo/daily/%s/prices?startDate=%s&endDate=%s&token=%s", symbol, date, date, token);
+      String url = prepareUrl(trade, endDate, token);
+      System.out.println(url);
+      TiingoCandle[] tradeDetails = restTemplate.getForObject(url, TiingoCandle[].class);
+      TotalReturnsDto finalTradeVar = new TotalReturnsDto(trade.getSymbol(), tradeDetails[tradeDetails.length - 1].getClose());
+      allTrades.add(finalTradeVar);     
+    }
+
+    Collections.sort(allTrades, new SortTrades());
+
+    List <String> sortedTrades = new ArrayList<>();
+
+    for(TotalReturnsDto trade : allTrades) sortedTrades.add(trade.getSymbol());
+
+    return sortedTrades;
+
+  }
+ */
 
   // TODO:
   //  After refactor, make sure that the tests pass by using these two commands
