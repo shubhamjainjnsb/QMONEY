@@ -1,7 +1,6 @@
 
 package com.crio.warmup.stock;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
@@ -51,19 +50,12 @@ void mainReadQuotesInvalidDates() throws Exception {
 
 @Test
 void mainReadQuotesInvalidStocks() throws Exception {
-    // Given
+    //given
     String filename = "assessments/trades_invalid_stock.json";
-
-    // When
-    Exception exception = null;
-    try {
-        PortfolioManagerApplication.mainReadQuotes(new String[]{filename, "2017-12-12"});
-    } catch (Exception e) {
-        exception = e;
-    }
-
-    // Then
-    assertNull(exception, "Expected no exception to be thrown");
+    
+    //when & then
+    Assertions.assertThrows(RuntimeException.class, () -> PortfolioManagerApplication
+        .mainReadQuotes(new String[]{filename, "2017-12-12"}));
 }
 
   @Test
