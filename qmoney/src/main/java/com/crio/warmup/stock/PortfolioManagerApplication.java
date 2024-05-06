@@ -149,40 +149,32 @@ public class PortfolioManagerApplication {
   // Note:
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
   public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
-    if (args.length < 2) {
-        throw new IllegalArgumentException("Insufficient arguments. Expected format: [filename] [date]");
+    List<PortfolioTrade> allTrades = readTradesFromJson(args[0]);
+    LocalDate endDate = LocalDate.parse(args[1]);
+    String token = getToken();
+    RestTemplate restTemplate = new RestTemplate();
+    List<TotalReturnsDto> priceList = new ArrayList<>();
+
+    for (PortfolioTrade trade : allTrades) {
+        String url = prepareUrl(trade, endDate, token);
+        TiingoCandle[] candles = restTemplate.getForObject(url, TiingoCandle[].class);
+        if (candles != null && candles.length > 0) {
+            // Assuming the candles are sorted by date in ascending order
+            TiingoCandle closingCandle = candles[candles.length - 1];
+            TotalReturnsDto dto = new TotalReturnsDto(trade.getSymbol(), closingCandle.getClose());
+            priceList.add(dto);
+        }
     }
 
-    String filename = args[0];
-    String dateString = args[1];
-    LocalDate endDate;
+    // Sort the priceList based on closing prices
+    Collections.sort(priceList, Comparator.comparing(TotalReturnsDto::getClosingPrice));
 
-    try {
-        endDate = LocalDate.parse(dateString);
-    } catch (DateTimeParseException e) {
-        // throw new RuntimeException("Invalid date format. Expected format: yyyy-MM-dd");
-        throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd");
-      }
-
-    // Assuming resolveFileFromResources and getObjectMapper methods are correctly implemented
-
-    File file = resolveFileFromResources(filename);
-    ObjectMapper om = getObjectMapper();
-    List<PortfolioTrade> trades;
-
-    try {
-        trades = om.readValue(file, new TypeReference<List<PortfolioTrade>>() {});
-    } catch (IOException e) {
-        throw new RuntimeException("Error reading file: " + filename, e);
+    // Extract symbols from sorted list
+    List<String> result = new ArrayList<>();
+    for (TotalReturnsDto dto : priceList) {
+        result.add(dto.getSymbol());
     }
-
-    // Filter trades based on the provided end date
-    List<String> symbols = trades.stream()
-            .filter(trade -> trade.getPurchaseDate().isBefore(endDate) || trade.getPurchaseDate().isEqual(endDate))
-            .map(PortfolioTrade::getSymbol)
-            .collect(Collectors.toList());
-
-    return symbols;
+    return result;
 }
 
 /*
@@ -230,6 +222,10 @@ public class PortfolioManagerApplication {
     return allData;
   }
 
+  private static TiingoCandle getClosingPrice(TiingoCandle[] fewDaysPrices) {
+    Arrays.sort(fewDaysPrices, (x, y) -> x.getDate().compareTo(y.getDate()));
+    return fewDaysPrices[fewDaysPrices.length - 1];
+  }
 
 
   // TODO:
@@ -246,15 +242,28 @@ public class PortfolioManagerApplication {
     return str.toString();
   }
 
+  /*
+    public static String prepareUrl(PortfolioTrade trade, LocalDate endDate, String token) {
+    // Check if end date is greater than purchase date
+    if (trade.getPurchaseDate().compareTo(endDate) > 0) {
+        throw new RuntimeException("End date is greater than purchased date");
+    }
 
+    // Tiingo API base URL for fetching daily stock prices
+    String baseUrl = "https://api.tiingo.com/tiingo/daily/";
 
+    // Build the complete URL with the required parameters
+    String url = String.format("%s%s/prices?startDate=%s&endDate=%s&token=%s",
+            baseUrl, trade.getSymbol(), trade.getPurchaseDate(), endDate, token);
 
-
-
-
-
-
-
+    return url;
+}
+   */
+  public static String getToken() {
+    String token = "e96ab14eb9eb79153b7132439945e5a2e0b1011d";
+    return token;
+  }
+  
 
   public static void main(String[] args) throws Exception {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler());
