@@ -150,64 +150,44 @@ public class PortfolioManagerApplication {
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
   public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
     List<PortfolioTrade> allTrades = readTradesFromJson(args[0]);
-    LocalDate endDate = LocalDate.parse(args[1]);
-    String token = getToken();
+    LocalDate endDate;
+    try{
+     endDate = LocalDate.parse(args[1]);
+    }catch(Exception e){
+         throw new  IllegalArgumentException() ;
+    }
+    
+    
     RestTemplate restTemplate = new RestTemplate();
-    List<TotalReturnsDto> priceList = new ArrayList<>();
+    List<TotalReturnsDto> priceList = new ArrayList<TotalReturnsDto>();
 
     for (PortfolioTrade trade : allTrades) {
-        String url = prepareUrl(trade, endDate, token);
-        TiingoCandle[] candles = restTemplate.getForObject(url, TiingoCandle[].class);
-        if (candles != null && candles.length > 0) {
-            // Assuming the candles are sorted by date in ascending order
-            TiingoCandle closingCandle = candles[candles.length - 1];
-            TotalReturnsDto dto = new TotalReturnsDto(trade.getSymbol(), closingCandle.getClose());
-            priceList.add(dto);
-        }
+      String url = prepareUrl(trade, endDate, getToken());
+      TiingoCandle[] fewDaysPrices = restTemplate.getForObject(url, TiingoCandle[].class);
+      TiingoCandle closingPriceOnOrBeforeEndDate = getClosingPrice(fewDaysPrices);
+      TotalReturnsDto currentTickerPrice = new TotalReturnsDto(trade.getSymbol(),
+          closingPriceOnOrBeforeEndDate.getClose());
+      priceList.add(currentTickerPrice);
     }
 
-    // Sort the priceList based on closing prices
-    Collections.sort(priceList, Comparator.comparing(TotalReturnsDto::getClosingPrice));
+    Collections.sort(priceList, new Comparator<TotalReturnsDto>() {
+      @Override
+      public int compare(TotalReturnsDto f1, TotalReturnsDto f2) {
+        return f1.getClosingPrice().compareTo(f2.getClosingPrice());
+      }
+    });
 
-    // Extract symbols from sorted list
-    List<String> result = new ArrayList<>();
-    for (TotalReturnsDto dto : priceList) {
-        result.add(dto.getSymbol());
+    List<String> result = new ArrayList<String>();
+    for (TotalReturnsDto obj : priceList) {
+      result.add(obj.getSymbol());
     }
     return result;
-}
-
-/*
- public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException{
-    
-    List <PortfolioTrade> portfolioTrades = readTradesFromJson(args[0]);
-    LocalDate endDate = LocalDate.parse(args[1]);
-
-    String token = "289464e8faf5cf34aba42001442fb59b3c854b6c";
-
-    RestTemplate restTemplate = new RestTemplate();
-
-    List <TotalReturnsDto> allTrades = new ArrayList<>();
-
-    for(PortfolioTrade trade : portfolioTrades) {
-      // String url = String.format("https://api.tiingo.com/tiingo/daily/%s/prices?startDate=%s&endDate=%s&token=%s", symbol, date, date, token);
-      String url = prepareUrl(trade, endDate, token);
-      System.out.println(url);
-      TiingoCandle[] tradeDetails = restTemplate.getForObject(url, TiingoCandle[].class);
-      TotalReturnsDto finalTradeVar = new TotalReturnsDto(trade.getSymbol(), tradeDetails[tradeDetails.length - 1].getClose());
-      allTrades.add(finalTradeVar);     
-    }
-
-    Collections.sort(allTrades, new SortTrades());
-
-    List <String> sortedTrades = new ArrayList<>();
-
-    for(TotalReturnsDto trade : allTrades) sortedTrades.add(trade.getSymbol());
-
-    return sortedTrades;
-
   }
- */
+
+  private static TiingoCandle getClosingPrice(TiingoCandle[] fewDaysPrices) {
+    Arrays.sort(fewDaysPrices, (x, y) -> x.getDate().compareTo(y.getDate()));
+    return fewDaysPrices[fewDaysPrices.length - 1];
+  }
 
   // TODO:
   //  After refactor, make sure that the tests pass by using these two commands
@@ -222,14 +202,10 @@ public class PortfolioManagerApplication {
     return allData;
   }
 
-  private static TiingoCandle getClosingPrice(TiingoCandle[] fewDaysPrices) {
-    Arrays.sort(fewDaysPrices, (x, y) -> x.getDate().compareTo(y.getDate()));
-    return fewDaysPrices[fewDaysPrices.length - 1];
-  }
-
 
   // TODO:
   //  Build the Url using given parameters and use this function in your code to cann the API.
+  /*
   public static String prepareUrl(PortfolioTrade trade, LocalDate endDate, String token) {
     String endpoint = "https://api.tiingo.com/tiingo/daily/";
     String path = "/prices?";
@@ -241,8 +217,14 @@ public class PortfolioManagerApplication {
     str.append("token=" + token);
     return str.toString();
   }
+  */
 
-  /*
+  public static String getToken() {
+    String token = "cbb31dc790512320e5e9c5f90cbc4cc9cd31a95d";
+    return token;
+  } 
+
+  
     public static String prepareUrl(PortfolioTrade trade, LocalDate endDate, String token) {
     // Check if end date is greater than purchase date
     if (trade.getPurchaseDate().compareTo(endDate) > 0) {
@@ -258,12 +240,7 @@ public class PortfolioManagerApplication {
 
     return url;
 }
-   */
-  public static String getToken() {
-    String token = "e96ab14eb9eb79153b7132439945e5a2e0b1011d";
-    return token;
-  }
-  
+   
 
   public static void main(String[] args) throws Exception {
     Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler());
@@ -277,4 +254,3 @@ public class PortfolioManagerApplication {
 
   }
 }
-
