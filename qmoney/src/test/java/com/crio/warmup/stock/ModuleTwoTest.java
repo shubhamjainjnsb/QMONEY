@@ -8,6 +8,19 @@ import org.junit.jupiter.api.Test;
 
 class ModuleTwoTest {
 
+  @Test
+  void mainReadQuotes() throws Exception {
+    //given
+    String filename = "assessments/trades.json";
+    List<String> expected = Arrays.asList(new String[]{"CTS", "CSCO", "MSFT"});
+
+    //when
+    List<String> actual = PortfolioManagerApplication
+        .mainReadQuotes(new String[]{filename, "2019-12-12"});
+
+    //then
+    Assertions.assertEquals(expected, actual);
+  }
 
   @Test
   void mainReadQuotesEdgeCase() throws Exception {
@@ -22,55 +35,40 @@ class ModuleTwoTest {
     //then
     Assertions.assertEquals(expected, actual);
   }
-  @Test
-  void mainReadQuotes() throws Exception {
-    // Given
-    String filename = "assessments/trades.json";
-    List<String> expected = Arrays.asList("CTS", "CSCO", "MSFT");
-
-    // When
-    List<String> actual = PortfolioManagerApplication.mainReadQuotes(new String[]{filename, "2019-12-12"});
-
-    // Then
-    Assertions.assertNotNull(actual); // Ensure that the actual list is not null
-    Assertions.assertEquals(expected.size(), actual.size()); // Ensure that the sizes of expected and actual lists are the same
-    Assertions.assertTrue(actual.containsAll(expected)); // Ensure that all elements in the expected list are present in the actual list
-    Assertions.assertTrue(expected.containsAll(actual)); // Ensure that all elements in the actual list are present in the expected list
-  }
 
   @Test
-void mainReadQuotesInvalidDates() throws Exception {
+  void mainReadQuotesInvalidDates() throws Exception {
     //given
     String filename = "assessments/trades_invalid_dates.json";
-    
-    //when & then
-    Assertions.assertThrows(IllegalArgumentException.class, () -> PortfolioManagerApplication
-        .mainReadQuotes(new String[]{filename, "invalid-date"}));
-}
-
-@Test
-void mainReadQuotesInvalidStocks() throws Exception {
-    //given
-    String filename = "assessments/trades_invalid_stock.json";
-    
-    //when & then
+    //when
     Assertions.assertThrows(RuntimeException.class, () -> PortfolioManagerApplication
         .mainReadQuotes(new String[]{filename, "2017-12-12"}));
-}
+
+  }
+
+
+  @Test
+  void mainReadQuotesInvalidStocks() throws Exception {
+    //given
+    String filename = "assessments/trades_invalid_stock.json";
+    //when
+    Assertions.assertThrows(RuntimeException.class, () -> PortfolioManagerApplication
+        .mainReadQuotes(new String[]{filename, "2017-12-12"}));
+
+  }
 
   @Test
   void mainReadQuotesOldTrades() throws Exception {
-    // Given
+    //given
     String filename = "assessments/trades_old.json";
-    List<String> expected = Arrays.asList("CTS", "ABBV", "MMM");
+    List<String> expected = Arrays.asList(new String[]{"CTS", "ABBV", "MMM"});
 
-    // When
-    List<String> actual = PortfolioManagerApplication.mainReadQuotes(new String[]{filename, "2019-12-12"});
+    //when
+    List<String> actual = PortfolioManagerApplication
+        .mainReadQuotes(new String[]{filename, "2019-12-12"});
 
-    // Then
-    Assertions.assertNotNull(actual); // Ensure that the actual list is not null
-    Assertions.assertEquals(expected.size(), actual.size()); // Ensure that the sizes of expected and actual lists are the same
-    Assertions.assertTrue(actual.containsAll(expected)); // Ensure that all elements in the expected list are present in the actual list
-    Assertions.assertTrue(expected.containsAll(actual)); // Ensure that all elements in the actual list are present in the expected list
+    //then
+    Assertions.assertEquals(expected, actual);
   }
+
 }
