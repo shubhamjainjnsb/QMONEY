@@ -228,7 +228,7 @@ public class PortfolioManagerApplication {
   // 1. You may need to copy relevant code from #mainReadQuotes to parse the Json.
   // 2. Remember to get the latest quotes from Tiingo API.
 
-  // TODO:
+  // TODO:     
   // Ensure all tests are passing using below command
   // ./gradlew test --tests ModuleThreeRefactorTest
   static Double getOpeningPriceOnStartDate(List<Candle> candles) {
@@ -239,7 +239,7 @@ public class PortfolioManagerApplication {
   public static Double getClosingPriceOnEndDate(List<Candle> candles) {
     Collections.sort(candles, (x, y) -> x.getDate().compareTo(y.getDate()));
     return candles.get(candles.size() - 1).getClose();
-  }
+  }   
 
   public static List<Candle> fetchCandles(PortfolioTrade trade, LocalDate endDate, String token) {
     String TiingoAPIurl = prepareUrl(trade, endDate, getToken());
