@@ -11,7 +11,7 @@ public class PortfolioManagerFactory {
   // instance.
 
   @Deprecated
-  public static PortfolioManager getPortfolioManager(RestTemplate restTemplate) {
+  public static PortfolioManager getPortfolioManager(String string, RestTemplate restTemplate) {
     return new PortfolioManagerImpl(restTemplate);
     
   }

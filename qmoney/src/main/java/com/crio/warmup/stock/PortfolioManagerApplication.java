@@ -322,7 +322,7 @@ public class PortfolioManagerApplication {
     String contents = readFileAsString(file);
     ObjectMapper objectMapper = getObjectMapper();
     PortfolioTrade[] portfolioTrades = objectMapper.readValue(contents, PortfolioTrade[].class);
-    PortfolioManager portfolioManager = PortfolioManagerFactory.getPortfolioManager(restTemplate);
+    PortfolioManager portfolioManager = PortfolioManagerFactory.getPortfolioManager(contents, restTemplate);
     return portfolioManager.calculateAnnualizedReturn(Arrays.asList(portfolioTrades), endDate);
   }
 

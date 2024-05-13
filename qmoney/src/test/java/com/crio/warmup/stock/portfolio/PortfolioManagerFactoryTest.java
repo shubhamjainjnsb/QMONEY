@@ -22,7 +22,7 @@ class PortfolioManagerFactoryTest {
 
   @Test
   void getPortfolioManagerWithStockQuoteService() {
-    Assertions.assertTrue(PortfolioManagerFactory.getPortfolioManager("tiingo", restTemplate)
+    Assertions.assertTrue(PortfolioManagerFactory.getPortfolioManager(restTemplate)
         instanceof PortfolioManagerImpl);
   }
 
